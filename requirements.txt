@@ -1,0 +1,9 @@
+apache-airflow
+azure-cli
+bs4
+pandas
+pyspark
+matplotlib
+seaborn
+nltk
+Flask
