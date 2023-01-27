@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ "2-load-parquet-file-to-database" ]
+    branches: [ "automatic-new-file-detection" ]
   pull_request:
-    branches: [ "2-load-parquet-file-to-database" ]
+    branches: [ "automatic-new-file-detection" ]
 
 permissions:
   contents: read
