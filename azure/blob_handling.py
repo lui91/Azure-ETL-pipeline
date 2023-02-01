@@ -5,10 +5,11 @@ import os
 def delete_file_from_container():
     pass
 
-def upload_blob_to_container(local_file_name: str, 
-                        container_name: str= "csvs",
-                        search_exists: bool= True, 
-                        account_url:str = "https://datastoragetweets.blob.core.windows.net") -> bool:
+def upload_blob_to_container(local_file_name: str,
+                             local_data_path: str,
+                             container_name: str= "csvs",
+                             search_exists: bool= True, 
+                             account_url:str = "https://datastoragetweets.blob.core.windows.net") -> bool:
     try:
         account_url = account_url
         default_credential = DefaultAzureCredential()
@@ -27,7 +28,7 @@ def upload_blob_to_container(local_file_name: str,
         # Set a name for the container
         container_name = container_name
 
-        local_data = "../files_to_sense/"
+        local_data = local_data_path
         local_file_name = local_file_name
         upload_file_path = os.path.join(local_data, local_file_name)
 
@@ -47,5 +48,3 @@ def upload_blob_to_container(local_file_name: str,
         print('Exception:')
         print(ex)
     return False
-
-print(upload_file_to_blob(local_file_name="categories.csv", search_exists=True))

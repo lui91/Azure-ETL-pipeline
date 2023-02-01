@@ -9,4 +9,5 @@ def print_params(**kwargs):
      'task_instance_key_str', 'test_mode', 'ti', 'tomorrow_ds', 'tomorrow_ds_nodash', 'triggering_dataset_events', 'ts', 
      'ts_nodash', 'ts_nodash_with_tz', 'var', 'conn', 'yesterday_ds', 'yesterday_ds_nodash', 'templates_dict'])
     '''
-    print(f"Dag: {kwargs['dag']}| Dag run: {kwargs['dag_run']}| Task: {kwargs['task']}| ")
+    print('-'*10)
+    print(f"params: {kwargs['params']}| run_id: {kwargs['run_id']}| Task: {kwargs['task']}| task_instance: {kwargs['task_instance']}|")
