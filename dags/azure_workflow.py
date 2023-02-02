@@ -2,9 +2,8 @@ from datetime import datetime
 from airflow.models import DAG
 from file_operators import set_file_sensor
 from python_operators import set_python_operator
-from airflow_ingestion.azure import blob_handling
-from airflow_ingestion.py_process import process
-
+from azure import blob_handling
+from py_process import process
 
 default_args = {
     'owner': 'lramirez',
