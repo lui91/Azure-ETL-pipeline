@@ -16,7 +16,7 @@ CREATE TABLE Tweets_Fact (
     Tweet_key int,
     Date_key int,
     Provider_key int,
-	id int PRIMARY KEY,
+	id int,
 	message VARCHAR(280),
 	original VARCHAR(280),
 	genre VARCHAR(20),
@@ -54,7 +54,11 @@ CREATE TABLE Tweets_Fact (
 	fire int,
 	earthquake int,
 	cold int,
-	other_weather int
+	other_weather int,
+    PRIMARY KEY (id),
+    FOREIGN KEY (Tweet_key) REFERENCES tweet_dim(Tweet_key),
+    FOREIGN KEY (Date_key) REFERENCES date_dim(Date_key),
+    FOREIGN KEY (Provider_key) REFERENCES provider_dim(Provider_key)
 );
 
 
