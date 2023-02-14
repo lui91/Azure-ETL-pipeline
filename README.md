@@ -14,9 +14,15 @@ Process:
 
 # Docker image creation
 
-```bash
-docker run --name=airflow -p 8080:8080 -v local_folder_path:/opt/airflow/dags/ -d apache/airflow airflow standalone
-```
+1. Define DockerFile
+2. Download docker-compose.yml
+3. docker compose build
+4. docker compose up
+
+# Install Azure CLI on running image as root
+
+1. docker exec -it -u root baeldung bash
+2. curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Register local packages
 

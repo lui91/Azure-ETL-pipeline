@@ -1,22 +1,22 @@
-CREATE TABLE Tweet_Dim (
-Tweet_key int PRIMARY KEY AUTO_INCREMENT
+CREATE TABLE tweet_Dim (
+tweet_key SERIAL ,
+PRIMARY KEY(tweet_key)
 );
-
-CREATE TABLE Date_Dim (
-Date_key int PRIMARY KEY AUTO_INCREMENT,
-Day_date DATE NOT NULL
+CREATE TABLE date_dim (
+date_key SERIAL,
+day_date DATE NOT NULL,
+PRIMARY KEY(date_key)
 );
-
-CREATE TABLE Provider_Dim (
-Provider_key int PRIMARY KEY AUTO_INCREMENT,
-Description VARCHAR(30)
+CREATE TABLE provider_dim (
+provider_key SERIAL,
+Description VARCHAR(30),
+PRIMARY KEY(provider_key)
 );
-
 CREATE TABLE Tweets_Fact (
-    Tweet_key int,
-    Date_key int,
-    Provider_key int,
-	id int,
+    tweet_key int,
+    date_key int,
+    provider_key int,
+	id SERIAL,
 	message VARCHAR(280),
 	original VARCHAR(280),
 	genre VARCHAR(20),
@@ -60,11 +60,10 @@ CREATE TABLE Tweets_Fact (
     FOREIGN KEY (Date_key) REFERENCES date_dim(Date_key),
     FOREIGN KEY (Provider_key) REFERENCES provider_dim(Provider_key)
 );
-
-
-
 delimiter //
-CREATE PROCEDURE insert_date()
+CREATE OR REPLACE PROCEDURE insert_date()
+language plpgsql    
+as $$
 BEGIN
 	DECLARE todayRegistered INT DEFAULT 0;
 	DECLARE today_Date DATE;
@@ -75,4 +74,5 @@ BEGIN
 	IF todayRegistered = 0 THEN
 	INSERT INTO Date_Dim (Day_date) values(today_Date);
 	END IF;
-END //
+    commit;
+end;$$;
