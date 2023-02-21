@@ -1,9 +1,6 @@
 apache-airflow
-azure-cli
-bs4
-# pandas
-# pyspark
-# matplotlib
-# seaborn
-# nltk
-# Flask
+apache_airflow_providers_sqlite==3.3.1
+azure-identity==1.12.0
+azure-storage-blob==12.14.1
+setuptools==65.5.0
+SQLAlchemy==1.4.45

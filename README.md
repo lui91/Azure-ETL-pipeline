@@ -1,6 +1,6 @@
 # Airflow orchestration of disaster data analysis on Azure
 
-Process:
+# Tasks on this project:
 
 - Dimensional design of database.
 - Azure Database for MySQL servers stored procedure calling.
@@ -19,12 +19,11 @@ Process:
 3. docker compose build
 4. docker compose up
 
-# Install Azure CLI on running image as root
+# Log in Azure CLI on running image
 
-1. docker exec -it -u root baeldung bash
-2. curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+1. az login --use-device-code
 
-# Register local packages
+# Register local packages (Before creating docker image)
 
 1. Define setup.py
 
@@ -32,7 +31,7 @@ Process:
 python setup.py install
 ```
 
-# Upload file to blob storage
+# (Optional) Upload file to blob storage
 
 1. Grant accesss to user on blob storache IAM
 2. Sign in and connect the app to Azure on Azure CLI

@@ -10,20 +10,10 @@ def delete_file_from_container():
 def upload_blob_to_container(local_file_name: str,
                              local_data_path: str,
                              container_name: str = "csvs",
-                             search_exists: bool = True,
                              account_url: str = "https://datastoragetweets.blob.core.windows.net") -> bool:
     try:
         account_url = account_url
         default_credential = DefaultAzureCredential()
-
-        if search_exists:
-            container = ContainerClient(
-                account_url=account_url, credential=default_credential, container_name=container_name)
-            blob_list = container.list_blobs()
-            for blob in blob_list:
-                if blob.name == local_file_name:
-                    print("File already exists")
-                    return False
 
         # Create the BlobServiceClient object
         blob_service_client = BlobServiceClient(
