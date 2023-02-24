@@ -7,6 +7,8 @@ from airflow.models.baseoperator import chain
 from airflow.decorators import dag
 from includes.azure.blob_handling import upload_blob_to_container
 from includes.azure.data_factory_handling import run_data_factory_pipeline, pipeline_run_check
+from includes.azure.postgre_handling import call_stored_procedure
+from includes.ml.ml_training import ml_pipeline
 import os
 
 
@@ -49,14 +51,21 @@ def main_pipeline() -> None:
                                           'account_url': blobs_url
                                       })
 
-    trigger_azdf_pipeline = run_data_factory_pipeline(
-        resource_group, factory_name, pipeline_name)
+    postgre_stored_procedure = call_stored_procedure()
 
-    monitor_azdf_pipeline = pipeline_run_check(
-        resource_group, factory_name, trigger_azdf_pipeline)
+    # trigger_azdf_pipeline = run_data_factory_pipeline(
+    #     resource_group, factory_name, pipeline_name)
 
-    chain(start_node, csv_sensors, csv_uploads_azure, trigger_azdf_pipeline, monitor_azdf_pipeline,
-          end_node)
+    # monitor_azdf_pipeline = pipeline_run_check(
+    #     resource_group, factory_name, trigger_azdf_pipeline)
+
+    ml_task = ml_pipeline()
+
+    # chain(start_node, csv_sensors, csv_uploads_azure, trigger_azdf_pipeline, monitor_azdf_pipeline,
+    #       end_node)
+
+    chain(start_node, csv_sensors, csv_uploads_azure,
+          postgre_stored_procedure, ml_task, end_node)
 
 
 dag = main_pipeline()
