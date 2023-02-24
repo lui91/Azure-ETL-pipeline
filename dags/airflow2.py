@@ -6,6 +6,8 @@ from airflow.utils.task_group import TaskGroup
 from airflow.models.baseoperator import chain
 from airflow.decorators import dag
 from includes.azure.blob_handling import upload_blob_to_container
+from includes.azure.data_factory_handling import run_data_factory_pipeline, pipeline_run_check
+import os
 
 
 @dag(dag_id="azure_tweets_processing",
@@ -14,9 +16,13 @@ from includes.azure.blob_handling import upload_blob_to_container
      template_searchpath="/opt/airflow/include/")
 def main_pipeline() -> None:
     ''' Azure ETL -> ML training -> Model deployment '''
-    sense_path = "/opt/airflow/data/"
+    # ETL variables
+    file_path = os.getenv('FILE_PATH')
     files_to_sense = ["messages", "categories"]
-    blobs_url = "https://datastoragetweets.blob.core.windows.net"
+    blobs_url = os.getenv('BLOBS_URL')
+    resource_group = os.getenv('DF_RESOURCE_GROUP')
+    factory_name = os.getenv('FACTORY_NAME')
+    pipeline_name = os.getenv('PIPELINE_NAME')
 
     start_node = EmptyOperator(task_id="start_task")
 
@@ -24,7 +30,7 @@ def main_pipeline() -> None:
     with TaskGroup('csv_sensors') as csv_sensors:
         for file in files_to_sense:
             file_sensor = FileSensor(task_id=f"sensor_{file}",
-                                     filepath=sense_path + file + ".csv",
+                                     filepath=file_path + file + ".csv",
                                      poke_interval=30,
                                      mode='poke',
                                      recursive=False)
@@ -38,12 +44,19 @@ def main_pipeline() -> None:
                                       python_callable=upload_blob_to_container,
                                       op_kwargs={
                                           'local_file_name': file_name + ".csv",
-                                          'local_data_path': sense_path,
+                                          'local_data_path': file_path,
                                           'container_name': "csvs",
                                           'account_url': blobs_url
                                       })
 
-    chain(start_node, csv_sensors, csv_uploads_azure, end_node)
+    trigger_azdf_pipeline = run_data_factory_pipeline(
+        resource_group, factory_name, pipeline_name)
+
+    monitor_azdf_pipeline = pipeline_run_check(
+        resource_group, factory_name, trigger_azdf_pipeline)
+
+    chain(start_node, csv_sensors, csv_uploads_azure, trigger_azdf_pipeline, monitor_azdf_pipeline,
+          end_node)
 
 
 dag = main_pipeline()
