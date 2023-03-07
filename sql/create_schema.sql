@@ -1,3 +1,4 @@
+CREATE DATABASE disaster_data;
 CREATE TABLE tweet_Dim (
 tweet_key SERIAL ,
 PRIMARY KEY(tweet_key)
