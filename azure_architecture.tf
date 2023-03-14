@@ -134,7 +134,7 @@ resource "azurerm_data_factory_linked_service_azure_blob_storage" "blob_linked_s
 resource "azurerm_data_factory_linked_service_postgresql" "postgre_linked_service" {
   name              = "postgreLinkedService"
   data_factory_id   = azurerm_data_factory.terra-factory.id
-  connection_string = "host=postgres-tweets.postgres.database.azure.com;port=5432;dbname=disaster_data;user=lui91 password=8Y4mhbaemXnJgzm6 sslmode=require"
+  connection_string = "{SECRETS}"
 }
 
 # csvs datasets
