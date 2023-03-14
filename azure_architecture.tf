@@ -13,8 +13,36 @@ provider "azurerm" {
   }
 }
 
+# data "external" "postgre_info" {
+#   program = [ "${path.module}/get_env.sh" ]
+# }
+
+variable "RESOURCE_GROUP" {
+  type = string
+}
+
+variable "POSTGRE_HOST" {
+  type = string
+  sensitive = true
+}
+
+variable "POSTGRE_DB" {
+  type = string
+}
+
+variable "POSTGRE_LOGIN" {
+  type = string
+  sensitive = true
+}
+
+variable "POSTGRE_PASSWORD" {
+  type = string
+  sensitive = true
+}
+
+
 resource "azurerm_resource_group" "terra_group" {
-  name     = "terra-tweets-group"
+  name     = var.RESOURCE_GROUP
   location = "East US"
 }
 
@@ -67,8 +95,8 @@ resource "azurerm_postgresql_flexible_server" "terra_posgre_server" {
   location            = azurerm_resource_group.terra_group.location
   resource_group_name = azurerm_resource_group.terra_group.name
 
-  administrator_login    = "terra_lui"
-  administrator_password = "H@Sh1CoR3!"
+  administrator_login    = var.POSTGRE_LOGIN
+  administrator_password = var.POSTGRE_PASSWORD
 
   sku_name                     = "B_Standard_B1ms"
   version                      = "11"
@@ -134,7 +162,7 @@ resource "azurerm_data_factory_linked_service_azure_blob_storage" "blob_linked_s
 resource "azurerm_data_factory_linked_service_postgresql" "postgre_linked_service" {
   name              = "postgreLinkedService"
   data_factory_id   = azurerm_data_factory.terra-factory.id
-  connection_string = "{SECRETS}"
+  connection_string = "host=${var.POSTGRE_HOST};port=5432;dbname=${var.POSTGRE_DB};user=${var.POSTGRE_LOGIN};password=${var.POSTGRE_PASSWORD};sslmode=require"
 }
 
 # csvs datasets
