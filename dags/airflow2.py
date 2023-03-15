@@ -59,13 +59,13 @@ def main_pipeline() -> None:
     # monitor_azdf_pipeline = pipeline_run_check(
     #     resource_group, factory_name, trigger_azdf_pipeline)
 
-    ml_task = ml_pipeline()
+    # ml_task = ml_pipeline()
 
     # chain(start_node, csv_sensors, csv_uploads_azure, trigger_azdf_pipeline, monitor_azdf_pipeline,
     #       end_node)
 
     chain(start_node, csv_sensors, csv_uploads_azure,
-          postgre_stored_procedure, ml_task, end_node)
+          postgre_stored_procedure, end_node)
 
 
 dag = main_pipeline()
