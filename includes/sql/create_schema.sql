@@ -1,4 +1,3 @@
-CREATE DATABASE disaster_data;
 CREATE TABLE tweet_Dim (
 tweet_key SERIAL ,
 PRIMARY KEY(tweet_key)
@@ -61,19 +60,19 @@ CREATE TABLE Tweets_Fact (
     FOREIGN KEY (Date_key) REFERENCES date_dim(Date_key),
     FOREIGN KEY (Provider_key) REFERENCES provider_dim(Provider_key)
 );
-delimiter //
 CREATE OR REPLACE PROCEDURE insert_date()
 language plpgsql    
 as $$
+DECLARE 
+todayRegistered INT DEFAULT 0;
+today_Date DATE := CURRENT_DATE;
 BEGIN
-	DECLARE todayRegistered INT DEFAULT 0;
-	DECLARE today_Date DATE;
-	set today_Date = curdate();
-	SELECT IF(COUNT(*) <> 0, 1, 0)
+	SELECT CASE WHEN COUNT(day_Date) <> 0 THEN 1 ELSE 0 END
 	INTO todayRegistered
 	FROM (SELECT Day_date FROM Date_dim WHERE Day_date = today_Date) as date_table;
 	IF todayRegistered = 0 THEN
 	INSERT INTO Date_Dim (Day_date) values(today_Date);
+	raise notice 'Today date added';
 	END IF;
     commit;
 end;$$;

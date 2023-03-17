@@ -22,7 +22,7 @@ variable "RESOURCE_GROUP" {
 }
 
 variable "POSTGRE_HOST" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -31,12 +31,12 @@ variable "POSTGRE_DB" {
 }
 
 variable "POSTGRE_LOGIN" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 variable "POSTGRE_PASSWORD" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -110,11 +110,18 @@ resource "azurerm_postgresql_flexible_server" "terra_posgre_server" {
   }
 }
 
-resource "azurerm_postgresql_flexible_server_firewall_rule" "net_rule" {
+resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_rule" {
   name             = "allow_azure_services"
   server_id        = azurerm_postgresql_flexible_server.terra_posgre_server.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
+}
+
+resource "azurerm_postgresql_flexible_server_firewall_rule" "local_rule" {
+  name             = "allow_local_pc"
+  server_id        = azurerm_postgresql_flexible_server.terra_posgre_server.id
+  start_ip_address = "189.195.194.37"
+  end_ip_address   = "189.195.194.37"
 }
 
 resource "azurerm_postgresql_flexible_server_database" "terra_posgre_db" {
