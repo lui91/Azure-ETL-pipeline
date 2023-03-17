@@ -12,6 +12,14 @@
 - Image deployment using Azure Web App service.
 - CI/CD using github actions.
 
+## Airflow process
+
+![Airflow process](/imgs/airflow_dag.png "Airflow process")
+
+## Data factory transformation
+
+![Data factory](/imgs/azure_data_factory.png "Data factory pipeline")
+
 # Docker image creation
 
 1. Define DockerFile
