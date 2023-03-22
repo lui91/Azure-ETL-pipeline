@@ -9,8 +9,8 @@ def delete_file_from_container():
 
 def upload_blob_to_container(local_file_name: str,
                              local_data_path: str,
-                             container_name: str = "csvs",
-                             account_url: str = "https://datastoragetweets.blob.core.windows.net") -> bool:
+                             container_name: str,
+                             account_url: str) -> bool:
     try:
         account_url = account_url
         default_credential = DefaultAzureCredential()
