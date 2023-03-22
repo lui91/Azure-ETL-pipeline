@@ -1,40 +1,63 @@
-from airflow.decorators import dag, task
+from airflow.decorators import dag
 from pendulum import datetime
+import json
 from airflow.operators.bash import BashOperator
-from pathlib import Path
+from airflow.operators.python import PythonOperator
+from airflow.models import Variable
+from airflow.utils.task_group import TaskGroup
 
 
-@dag(dag_id="xcom_tests",
+def _read_file(task_id='get_data'):
+    with open("/opt/airflow/includes/terraform/first_stage/resources.txt") as f:
+        data = json.load(f)
+        return data
+
+
+def _process_obtained_data(ti):
+    list_of_resources = ti.xcom_pull(task_ids='get_data')
+    Variable.set(key='commands',
+                 value=list_of_resources, serialize_json=True)
+
+
+@dag(dag_id="dynamic_tasks",
      start_date=datetime(2023, 3, 1),
      schedule_interval=None,
      catchup=False,
      render_template_as_native_obj=True,)
 def dags_test():
-    @task(task_id='create_commands')
-    def create_commands():
-        return {
-            'a': 'command-a',
-            'b': 'command-b',
-        }
 
-    @task
-    def write_commands(dict):
-        with open('resources.txt', "w") as r_file:
-            r_file.writelines(dict)
+    tf_get_resources = BashOperator(task_id="tf_get_resources",
+                                    cwd="/opt/airflow/includes/terraform/first_stage/",
+                                    bash_command="terraform output -json >> resources.txt")
 
-    cr_comms = write_commands(create_commands())
-    # 1. save to file inside task
-    # 2 read in main process and create task
+    get_data = PythonOperator(
+        task_id='get_data',
+        python_callable=_read_file)
 
-    # commands = "{{{{ task_instance.xcom_pull(task_ids='create_commands', dag_id='xcom_tests', key='return_value') }}}}"
-    command = "test"
-    file_exists = Path('resources.txt').exists()
-    bash_test = BashOperator(task_id=f"tf_infra_{command}",
-                             cwd="/opt/airflow/includes/terraform/first_stage/",
-                             #  bash_command="echo You did it!!!! {{ task_instance.xcom_pull(task_ids='create_commands', dag_id='xcom_tests', key='return_value') }}")
-                             bash_command=f"The file exists: {file_exists} ")
+    preparation_task = PythonOperator(
+        task_id='preparation_task',
+        python_callable=_process_obtained_data)
 
-    cr_comms >> bash_test
+    # Top-level code within DAG block
+    resource_list = Variable.get('commands',
+                                 default_var=['default_resource'],
+                                 deserialize_json=True)
+
+    with TaskGroup('resources_group', prefix_group_id=False,) as resources_group:
+        for resource in resource_list.keys():
+            resource_value = resource_list[resource]["value"]
+            tf_resources = BashOperator(task_id=f"tf_get_{resource}",
+                                        cwd="/opt/airflow/includes/terraform/second_stage/",
+                                        bash_command=f"echo Creating:{resource} ID: {resource_value}")
+
+    delete_file = BashOperator(task_id="tf_rm_resources",
+                               cwd="/opt/airflow/includes/terraform/first_stage/",
+                               bash_command="rm resources.txt")
+
+    exit_status = BashOperator(
+        task_id="exiting_task", bash_command=" echo Process ended")
+
+    tf_get_resources >> get_data >> preparation_task >> resources_group >> delete_file >> exit_status
 
 
 dags_test()
