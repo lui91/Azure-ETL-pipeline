@@ -1,9 +1,42 @@
-<mxfile host="app.diagrams.net" modified="2023-04-22T17:17:22.904Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.48 AtContent/95.5.6134.35" version="21.2.1" etag="ZcE5j1xVMRpwX3SfQ1R1" type="github">
+<mxfile host="app.diagrams.net" modified="2023-04-22T17:25:56.545Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.48 AtContent/95.5.6134.35" etag="FA3wiAZVGsuSUsIgh6Qa" version="21.2.1" type="github">
   <diagram name="Page-1" id="7rYEFgpGdh6-XZGvrTgG">
-    <mxGraphModel>
+    <mxGraphModel dx="1184" dy="1171" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-3" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="309" width="130" height="201" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-1" value="Categories" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/bootstrap-vol-3/16/filetype-csv-128.png" vertex="1" parent="1">
+          <mxGeometry x="88" y="330" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-2" value="Messages" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/bootstrap-vol-3/16/filetype-csv-128.png" vertex="1" parent="1">
+          <mxGeometry x="88" y="430" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-4" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.on_premises;" vertex="1" parent="1">
+          <mxGeometry x="95" y="240" width="34" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-5" value="" style="whiteSpace=wrap;html=1;shape=mxgraph.basic.cloud_rect" vertex="1" parent="1">
+          <mxGeometry x="240" y="230" width="680" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-6" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/BlobBlock.svg;" vertex="1" parent="1">
+          <mxGeometry x="280" y="382" width="73.21" height="61.5" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-7" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/Data_Factory.svg;" vertex="1" parent="1">
+          <mxGeometry x="420" y="375.5" width="68" height="68" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-8" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/analytics/Azure_Databricks.svg;" vertex="1" parent="1">
+          <mxGeometry x="540" y="375.5" width="62.8" height="68" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-9" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/analytics/Azure_Synapse_Analytics.svg;" vertex="1" parent="1">
+          <mxGeometry x="470" y="250" width="60" height="69" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-10" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/networking/Private_Endpoint.svg;" vertex="1" parent="1">
+          <mxGeometry x="650" y="374.25" width="72" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="pXs0Z-M0KWNpeUsixe3L-11" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/containers/Container_Registries.svg;" vertex="1" parent="1">
+          <mxGeometry x="820" y="254" width="68" height="61" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
