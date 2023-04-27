@@ -48,7 +48,7 @@ def create_postgre_schema():
 def get_tweet_dim():
     # return "CREATE TABLE tweet_dim (tweet_key SERIAL , PRIMARY KEY(tweet_key));"
     return '''
-    CREATE TABLE tweet_Dim (
+    CREATE TABLE IF NOT EXISTS tweet_Dim (
     tweet_key SERIAL ,
     PRIMARY KEY(tweet_key)
     );
@@ -58,7 +58,7 @@ def get_tweet_dim():
 def get_date_dim():
     # return "CREATE TABLE date_dim (date_key SERIAL, day_date DATE NOT NULL, PRIMARY KEY(date_key));"
     return '''
-    CREATE TABLE date_dim (
+    CREATE TABLE IF NOT EXISTS date_dim (
     date_key SERIAL,
     day_date DATE NOT NULL,
     PRIMARY KEY(date_key)
@@ -69,7 +69,7 @@ def get_date_dim():
 def get_provider_dim():
     # return "CREATE TABLE provider_dim (provider_key SERIAL, Description VARCHAR(30), PRIMARY KEY(provider_key));"
     return '''
-    CREATE TABLE provider_dim (
+    CREATE TABLE IF NOT EXISTS provider_dim (
     provider_key SERIAL,
     Description VARCHAR(30),
     PRIMARY KEY(provider_key)
@@ -79,7 +79,7 @@ def get_provider_dim():
 
 def get_tweets_fact():
     return '''
-    CREATE TABLE Tweets_Fact (
+    CREATE TABLE IF NOT EXISTS Tweets_Fact (
     tweet_key int,
     date_key int,
     provider_key int,
