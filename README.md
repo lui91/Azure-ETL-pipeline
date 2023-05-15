@@ -1,18 +1,17 @@
-# Airflow orchestration of disaster data analysis on Azure
+# Airflow orchestration of disaster data analysis on Azure ![Main workflow](https://github.com/lui91/airflow_ingestion/.github/workflows/python-app.yml)
 
 # Tasks on this project:
 
-- Dimensional design of database.
-- Azure Database for MySQL servers stored procedure calling.
-- Data pre-processing in Azure data Factory.
-- Machine learning Pipeline implementation in Machine Learning studio.
-- Endpoint creation for trained model calls.
-- Docker containerization of flask app.
-- Image upload to Azure container registry.
-- Image deployment using Azure Web App service.
+- Dimensional design of Warehouse.
+- Terraform storage, RBAC, and infrastructure, provisioning.
+- Airflow orchestraition.
+- Azure Data factory transform and load pipeline.
+- Azure Database for PostgreSQL servers stored procedure calling.
 - CI/CD using github actions.
 
-## Airflow process
+## Structure
+
+## Airflow DAG
 
 ![Airflow process](/imgs/airflow_dag.png "Airflow process")
 
