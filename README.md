@@ -1,4 +1,4 @@
-# Airflow orchestration of disaster data analysis on Azure ![Main workflow](https://github.com/lui91/airflow_ingestion/.github/workflows/python-app.yml)
+# Airflow orchestration of disaster data analysis on Azure ![Main workflow](https://github.com/lui91/airflow_ingestion/actions/workflows/python-app.yml/badge.svg)
 
 # Tasks on this project:
 
