@@ -11,6 +11,8 @@
 
 ## Structure
 
+![General process](/diagram/general.drawio.png "General process")
+
 ## Airflow DAG
 
 ![Airflow process](/imgs/airflow_dag.png "Airflow process")
