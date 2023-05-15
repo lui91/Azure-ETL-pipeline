@@ -13,6 +13,10 @@
 
 ![General process](/diagram/general.drawio.png "General process")
 
+## Warehouse design
+
+![Warehouse design](/diagram/shema%20diagram.drawio.png "Schema design")
+
 ## Airflow DAG
 
 ![Airflow process](/imgs/airflow_dag.png "Airflow process")
