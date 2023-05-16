@@ -1,7 +1,6 @@
 import psycopg2
 import os
 from airflow.decorators import task
-import pandas as pd
 
 
 def get_connection():
@@ -46,44 +45,52 @@ def create_postgre_schema():
 
 
 def get_tweet_dim():
-    # return "CREATE TABLE tweet_dim (tweet_key SERIAL , PRIMARY KEY(tweet_key));"
+    # SQL string to create table DimTweet"
     return '''
-    CREATE TABLE IF NOT EXISTS tweet_Dim (
-    tweet_key SERIAL ,
+    CREATE TABLE IF NOT EXISTS DimTweet (
+    tweet_key SERIAL,
+    batch int NOT NULL
     PRIMARY KEY(tweet_key)
     );
     '''
 
 
 def get_date_dim():
-    # return "CREATE TABLE date_dim (date_key SERIAL, day_date DATE NOT NULL, PRIMARY KEY(date_key));"
+    # SQL string to create table DimDate"
     return '''
-    CREATE TABLE IF NOT EXISTS date_dim (
+    CREATE TABLE IF NOT EXISTS DimDate (
     date_key SERIAL,
-    day_date DATE NOT NULL,
+    month int NOT NULL,
+    day int NOT NULL,
+    year int NOT NULL,
+    quarter int NOT NULL,
+    hour int NOT NULL,
+    complete TIMESTAMP NOT NULL,
     PRIMARY KEY(date_key)
     );
     '''
 
 
 def get_provider_dim():
-    # return "CREATE TABLE provider_dim (provider_key SERIAL, Description VARCHAR(30), PRIMARY KEY(provider_key));"
+    # SQL string to create table DimProvider"
     return '''
-    CREATE TABLE IF NOT EXISTS provider_dim (
+    CREATE TABLE IF NOT EXISTS DimProvider (
     provider_key SERIAL,
-    Description VARCHAR(30),
+    description VARCHAR(30),
     PRIMARY KEY(provider_key)
     );
     '''
 
 
 def get_tweets_fact():
+    # SQL string to create table FactTweet"
     return '''
-    CREATE TABLE IF NOT EXISTS Tweets_Fact (
-    tweet_key int,
+    CREATE TABLE IF NOT EXISTS FactTweet (
+    id SERIAL,
     date_key int,
+    tweet_key int,
     provider_key int,
-	id SERIAL,
+	alt_id int NOT NULL,
 	message VARCHAR(280),
 	original VARCHAR(280),
 	genre VARCHAR(20),
@@ -123,26 +130,33 @@ def get_tweets_fact():
 	cold int,
 	other_weather int,
     PRIMARY KEY (id),
-    FOREIGN KEY (Tweet_key) REFERENCES tweet_dim(Tweet_key),
-    FOREIGN KEY (Date_key) REFERENCES date_dim(Date_key),
-    FOREIGN KEY (Provider_key) REFERENCES provider_dim(Provider_key));
+    FOREIGN KEY (date_key) REFERENCES DimDate(date_key),
+    FOREIGN KEY (tweet_key) REFERENCES DimTweet(tweet_key),
+    FOREIGN KEY (provider_key) REFERENCES DimProvider(provider_key));
     '''
 
 
 def get_insert_date():
+    # SQL string to create stored procedure insert_date"
     return '''
     CREATE OR REPLACE PROCEDURE insert_date()
     language plpgsql    
     as $$
     DECLARE 
     todayRegistered INT DEFAULT 0;
-    today_Date DATE := CURRENT_DATE;
+    today_Date TIMESTAMP := CURRENT_TIMESTAMP;
     BEGIN
-        SELECT CASE WHEN COUNT(day_Date) <> 0 THEN 1 ELSE 0 END
+        SELECT CASE WHEN COUNT(complete) <> 0 THEN 1 ELSE 0 END
         INTO todayRegistered
-        FROM (SELECT Day_date FROM Date_dim WHERE Day_date = today_Date) as date_table;
+        FROM (SELECT complete FROM DimDate WHERE DATE(complete) = DATE(today_Date) and EXTRACT(HOUR FROM complete) = EXTRACT(HOUR FROM today_Date)) as date_table;
         IF todayRegistered = 0 THEN
-        INSERT INTO Date_Dim (Day_date) values(today_Date);
+        INSERT INTO DIMDATE (month, day, year, quarter, hour, complete)
+                VALUES (EXTRACT(MONTH FROM CURRENT_TIMESTAMP),
+                        EXTRACT(DAY FROM CURRENT_TIMESTAMP),
+                        EXTRACT(YEAR FROM CURRENT_TIMESTAMP),
+                        EXTRACT(QUARTER FROM CURRENT_TIMESTAMP),
+                        EXTRACT(HOUR FROM CURRENT_TIMESTAMP),
+                        CURRENT_TIMESTAMP);
         raise notice 'Today date added';
         END IF;
         commit;
