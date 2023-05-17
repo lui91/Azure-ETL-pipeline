@@ -35,6 +35,7 @@ def _process_obtained_data(ti):
 
 @dag(dag_id="azure_tweets_processing",
      start_date=datetime(2023, 2, 11),
+     schedule_interval=None,
      default_view="graph",
      template_searchpath="/opt/airflow/include/")
 def main_pipeline() -> None:

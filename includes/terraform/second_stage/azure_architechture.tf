@@ -18,7 +18,7 @@ variable "RESOURCE_GROUP" {
 }
 
 variable "POSTGRE_HOST" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -27,18 +27,30 @@ variable "POSTGRE_DB" {
 }
 
 variable "POSTGRE_LOGIN" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 variable "POSTGRE_PASSWORD" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 resource "azurerm_resource_group" "terra_group" {
   name     = var.RESOURCE_GROUP
   location = "East US"
+}
+
+resource "azurerm_storage_account" "terra_storage" {
+  name                     = "terratweetsstorage"
+  resource_group_name      = azurerm_resource_group.terra_group.name
+  location                 = azurerm_resource_group.terra_group.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    "environment" = "dev"
+  }
 }
 
 # Data factory configuration
