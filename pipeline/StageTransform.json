@@ -1,0 +1,184 @@
+{
+	"name": "StageTransform",
+	"properties": {
+		"activities": [
+			{
+				"name": "CSV merge",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Set date_key",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Set tweet_key",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Set Provider_key",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "None",
+					"cacheSinks": {
+						"firstRowOnly": true
+					}
+				}
+			},
+			{
+				"name": "Lookup_date",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzurePostgreSqlSource",
+						"query": "SELECT MAX(date_key) as date_key FROM date_dim;",
+						"partitionOption": "None"
+					}
+				}
+			},
+			{
+				"name": "Lookup_tweet",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzurePostgreSqlSource",
+						"query": "SELECT MAX(Tweet_key) as tweet_key FROM tweet_dim;",
+						"partitionOption": "None"
+					}
+				}
+			},
+			{
+				"name": "Lookup_provider",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzurePostgreSqlSource",
+						"query": "SELECT MAX(Provider_key) as provider_key FROM provider_dim;",
+						"partitionOption": "None"
+					}
+				}
+			},
+			{
+				"name": "Set date_key",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup_date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pipe_date_key",
+					"value": {
+						"value": "@string(activity('Lookup_date').output.firstRow.date_key)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set tweet_key",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup_tweet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pipe_tweet_key",
+					"value": {
+						"value": "@string(activity('Lookup_tweet').output.firstRow.tweet_key)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Provider_key",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup_provider",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pipe_provider_key",
+					"value": {
+						"value": "@string(activity('Lookup_provider').output.firstRow.provider_key)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"pipe_date_key": {
+				"type": "String",
+				"defaultValue": "\"pipeline key\""
+			},
+			"pipe_tweet_key": {
+				"type": "String",
+				"defaultValue": "\"pipeline tweet\""
+			},
+			"pipe_provider_key": {
+				"type": "String",
+				"defaultValue": "\"pipeline provider\""
+			}
+		},
+		"annotations": []
+	}
+}
