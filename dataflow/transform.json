@@ -70,7 +70,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> CategoriesSource",
-				"MessagesSource, CategoriesSource join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"MessagesSource, CategoriesSource join(MessagesSource@id == CategoriesSource@id,",
 				"     joinType:'right',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
