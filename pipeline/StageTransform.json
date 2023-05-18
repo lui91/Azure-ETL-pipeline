@@ -34,6 +34,15 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"dataflow": {
+						"referenceName": "transform",
+						"type": "DataFlowReference",
+						"parameters": {
+							"var_date_key": "\"Var date key\"",
+							"var_tweet_key": "\"Var tweet key\"",
+							"var_provider_key": "\"Var provider key\""
+						}
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
