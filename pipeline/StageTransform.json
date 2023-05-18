@@ -59,8 +59,12 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzurePostgreSqlSource",
-						"query": "SELECT MAX(date_key) as date_key FROM date_dim;",
+						"query": "SELECT MAX(date_key) as date_key FROM dimdate;",
 						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "PostgreDimDate",
+						"type": "DatasetReference"
 					}
 				}
 			},
@@ -79,8 +83,12 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzurePostgreSqlSource",
-						"query": "SELECT MAX(Tweet_key) as tweet_key FROM tweet_dim;",
+						"query": "SELECT MAX(tweet_key) as tweet_key FROM dimtweet;",
 						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "PostgreDimTweet",
+						"type": "DatasetReference"
 					}
 				}
 			},
@@ -99,8 +107,12 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzurePostgreSqlSource",
-						"query": "SELECT MAX(Provider_key) as provider_key FROM provider_dim;",
+						"query": "SELECT MAX(provider_key) as provider_key FROM dimprovider;",
 						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "PostgreDimProvider",
+						"type": "DatasetReference"
 					}
 				}
 			},
