@@ -38,9 +38,18 @@
 						"referenceName": "transform",
 						"type": "DataFlowReference",
 						"parameters": {
-							"var_date_key": "\"Var date key\"",
-							"var_tweet_key": "\"Var tweet key\"",
-							"var_provider_key": "\"Var provider key\""
+							"var_date_key": {
+								"value": "@variables('pipe_date_key')",
+								"type": "Expression"
+							},
+							"var_tweet_key": {
+								"value": "@variables('pipe_tweet_key')",
+								"type": "Expression"
+							},
+							"var_provider_key": {
+								"value": "@variables('pipe_provider_key')",
+								"type": "Expression"
+							}
 						}
 					},
 					"compute": {
