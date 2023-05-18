@@ -29,6 +29,29 @@ def call_stored_procedure():
     conn.close()
 
 
+@task(task_id="postgre_insert_provider")
+def call_stored_procedure():
+    ''' Insert record to dimprovider'''
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO dimprovider (description) VALUES ('figure eight provided data');")
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+@task(task_id="postgre_insert_tweet")
+def call_stored_procedure():
+    ''' Insert record to dimtweet'''
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO dimtweet (batch) VALUES (0);")
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
 @task(task_id="postgre_create_schema")
 def create_postgre_schema():
     ''' Run sql file to generate the DB schema.'''
@@ -47,9 +70,10 @@ def create_postgre_schema():
 def get_tweet_dim():
     # SQL string to create table DimTweet"
     return '''
+    USING DISASTER_data;
     CREATE TABLE IF NOT EXISTS DimTweet (
     tweet_key SERIAL,
-    batch int NOT NULL
+    batch int NOT NULL,
     PRIMARY KEY(tweet_key)
     );
     '''
@@ -129,6 +153,7 @@ def get_tweets_fact():
 	earthquake int,
 	cold int,
 	other_weather int,
+    direct_report int,
     PRIMARY KEY (id),
     FOREIGN KEY (date_key) REFERENCES DimDate(date_key),
     FOREIGN KEY (tweet_key) REFERENCES DimTweet(tweet_key),
