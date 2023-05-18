@@ -1,0 +1,957 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "terra-tweet-factory"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
+		},
+		"AzurePostgreSql1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzurePostgreSql1'"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/StageTransform')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CSV merge",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Set date_key",
+								"dependencyConditions": [
+									"Completed"
+								]
+							},
+							{
+								"activity": "Set tweet_key",
+								"dependencyConditions": [
+									"Completed"
+								]
+							},
+							{
+								"activity": "Set Provider_key",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "transform",
+								"type": "DataFlowReference",
+								"parameters": {
+									"var_date_key": "\"Var date key\"",
+									"var_tweet_key": "\"Var tweet key\"",
+									"var_provider_key": "\"Var provider key\""
+								},
+								"datasetParameters": {
+									"MessagesSource": {},
+									"CategoriesSource": {},
+									"DisasterDataSink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							}
+						}
+					},
+					{
+						"name": "Lookup_date",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzurePostgreSqlSource",
+								"query": "SELECT MAX(date_key) as date_key FROM dimdate;",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "PostgreDimDate",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup_tweet",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzurePostgreSqlSource",
+								"query": "SELECT MAX(tweet_key) as tweet_key FROM dimtweet;",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "PostgreDimTweet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup_provider",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzurePostgreSqlSource",
+								"query": "SELECT MAX(provider_key) as provider_key FROM dimprovider;",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "PostgreDimProvider",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Set date_key",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Lookup_date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "pipe_date_key",
+							"value": {
+								"value": "@string(activity('Lookup_date').output.firstRow.date_key)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set tweet_key",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Lookup_tweet",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "pipe_tweet_key",
+							"value": {
+								"value": "@string(activity('Lookup_tweet').output.firstRow.tweet_key)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set Provider_key",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Lookup_provider",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "pipe_provider_key",
+							"value": {
+								"value": "@string(activity('Lookup_provider').output.firstRow.provider_key)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"pipe_date_key": {
+						"type": "String",
+						"defaultValue": "\"pipeline key\""
+					},
+					"pipe_tweet_key": {
+						"type": "String",
+						"defaultValue": "\"pipeline tweet\""
+					},
+					"pipe_provider_key": {
+						"type": "String",
+						"defaultValue": "\"pipeline provider\""
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/transform')]",
+				"[concat(variables('factoryId'), '/datasets/PostgreDimDate')]",
+				"[concat(variables('factoryId'), '/datasets/PostgreDimTweet')]",
+				"[concat(variables('factoryId'), '/datasets/PostgreDimProvider')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PostgreDimDate')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzurePostgreSql1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "public",
+					"table": "dimdate"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzurePostgreSql1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PostgreDimProvider')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzurePostgreSql1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [
+					{
+						"name": "provider_key",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "description",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "public",
+					"table": "dimprovider"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzurePostgreSql1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PostgreDimTweet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzurePostgreSql1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [
+					{
+						"name": "tweet_key",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "batch",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "public",
+					"table": "dimtweet"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzurePostgreSql1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PostgreFactTweet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzurePostgreSql1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "date_key",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "tweet_key",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "provider_key",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "alt_id",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "message",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "original",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "genre",
+						"type": "character varying",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "related",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "request",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "offer",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "aid_related",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "medical_help",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "medical_products",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "search_and_rescue",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "security",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "military",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "child_alone",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "water",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "food",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "shelter",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "clothing",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "money",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "missing_people",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "refugees",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "death",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "other_aid",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "infrastructure_related",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "transport",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "buildings",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "electricity",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "tools",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "hospitals",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "shops",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "aid_centers",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "other_infrastructure",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "weather_related",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "floods",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "storm",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "fire",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "earthquake",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "cold",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					},
+					{
+						"name": "other_weather",
+						"type": "integer",
+						"precision": 0,
+						"scale": 0
+					}
+				],
+				"typeProperties": {
+					"schema": "public",
+					"table": "facttweet"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzurePostgreSql1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/categories_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "categories.csv",
+						"container": "csvs"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/messages_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "messages.csv",
+						"container": "csvs"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzurePostgreSql1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzurePostgreSql",
+				"typeProperties": {
+					"connectionString": "[parameters('AzurePostgreSql1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/transform')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "messages_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "MessagesSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "categories_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "CategoriesSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "PostgreDimDate",
+								"type": "DatasetReference"
+							},
+							"name": "DisasterDataSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1"
+						},
+						{
+							"name": "parse1"
+						},
+						{
+							"name": "CategoriesColumnCreation"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select3"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     var_date_key as string (\"Var date key\"),",
+						"     var_tweet_key as string (\"Var tweet key\"),",
+						"     var_provider_key as string (\"Var provider key\")",
+						"}",
+						"source(output(",
+						"          id as integer,",
+						"          message as string,",
+						"          original as string,",
+						"          genre as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> MessagesSource",
+						"source(output(",
+						"          id as integer,",
+						"          categories as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CategoriesSource",
+						"MessagesSource, CategoriesSource join(MessagesSource@id == CategoriesSource@id,",
+						"     joinType:'right',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"select1 parse(categories_separated = categories ? (related as string,",
+						"          request as string,",
+						"          offer as string,",
+						"          aid_related as string,",
+						"          medical_help as string,",
+						"          medical_products as string,",
+						"          search_and_rescue as string,",
+						"          security as string,",
+						"          military as string,",
+						"          child_alone as string,",
+						"          water as string,",
+						"          food as string,",
+						"          shelter as string,",
+						"          clothing as string,",
+						"          money as string,",
+						"          missing_people as string,",
+						"          refugees as string,",
+						"          death as string,",
+						"          other_aid as string,",
+						"          infrastructure_related as string,",
+						"          transport as string,",
+						"          buildings as string,",
+						"          electricity as string,",
+						"          tools as string,",
+						"          hospitals as string,",
+						"          shops as string,",
+						"          aid_centers as string,",
+						"          other_infrastructure as string,",
+						"          weather_related as string,",
+						"          floods as string,",
+						"          storm as string,",
+						"          fire as string,",
+						"          earthquake as string,",
+						"          cold as string,",
+						"          other_weather as string,",
+						"          direct_report as string),",
+						"     format: 'delimited',",
+						"     columnNamesAsHeader: false,",
+						"     columnDelimiter: ';',",
+						"     nullValue: '') ~> parse1",
+						"parse1 derive(related = toInteger(split(categories_separated.aid_related, '-')[2]),",
+						"          request = toInteger(split(categories_separated.request, '-')[2]),",
+						"          offer = toInteger(split(categories_separated.offer, '-')[2]),",
+						"          aid_related = toInteger(split(categories_separated.aid_related, '-')[2]),",
+						"          medical_help = toInteger(split(categories_separated.medical_help, '-')[2]),",
+						"          medical_products = toInteger(split(categories_separated.medical_products, '-')[2]),",
+						"          search_and_rescue = toInteger(split(categories_separated.search_and_rescue, '-')[2]),",
+						"          security = toInteger(split(categories_separated.security, '-')[2]),",
+						"          military = toInteger(split(categories_separated.military, '-')[2]),",
+						"          child_alone = toInteger(split(categories_separated.child_alone, '-')[2]),",
+						"          water = toInteger(split(categories_separated.water, '-')[2]),",
+						"          food = toInteger(split(categories_separated.food, '-')[2]),",
+						"          shelter = toInteger(split(categories_separated.shelter, '-')[2]),",
+						"          clothing = toInteger(split(categories_separated.clothing, '-')[2]),",
+						"          money = toInteger(split(categories_separated.money, '-')[2]),",
+						"          missing_people = toInteger(split(categories_separated.missing_people, '-')[2]),",
+						"          refugees = toInteger(split(categories_separated.refugees, '-')[2]),",
+						"          death = toInteger(split(categories_separated.death, '-')[2]),",
+						"          other_aid = toInteger(split(categories_separated.other_aid, '-')[2]),",
+						"          infrastructure_related = toInteger(split(categories_separated.infrastructure_related, '-')[2]),",
+						"          transport = toInteger(split(categories_separated.transport, '-')[2]),",
+						"          buildings = toInteger(split(categories_separated.buildings, '-')[2]),",
+						"          electricity = toInteger(split(categories_separated.electricity, '-')[2]),",
+						"          tools = toInteger(split(categories_separated.tools, '-')[2]),",
+						"          hospitals = toInteger(split(categories_separated.hospitals, '-')[2]),",
+						"          shops = toInteger(split(categories_separated.shops, '-')[2]),",
+						"          aid_centers = toInteger(split(categories_separated.aid_centers, '-')[2]),",
+						"          other_infrastructure = toInteger(split(categories_separated.other_infrastructure, '-')[2]),",
+						"          weather_related = toInteger(split(categories_separated.weather_related, '-')[2]),",
+						"          floods = toInteger(split(categories_separated.floods, '-')[2]),",
+						"          storm = toInteger(split(categories_separated.storm, '-')[2]),",
+						"          fire = toInteger(split(categories_separated.fire, '-')[2]),",
+						"          earthquake = toInteger(split(categories_separated.earthquake, '-')[2]),",
+						"          cold = toInteger(split(categories_separated.cold, '-')[2]),",
+						"          other_weather = toInteger(split(categories_separated.other_weather, '-')[2]),",
+						"          direct_report = toInteger(split(categories_separated.direct_report, '-')[2])) ~> CategoriesColumnCreation",
+						"join1 select(mapColumn(",
+						"          alt_id = MessagesSource@id,",
+						"          message,",
+						"          original,",
+						"          genre,",
+						"          categories",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"CategoriesColumnCreation derive(tweet_key = $var_tweet_key,",
+						"          date_key = $var_date_key,",
+						"          provider_key = $var_provider_key) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          date_key,",
+						"          tweet_key,",
+						"          provider_key,",
+						"          alt_id,",
+						"          message,",
+						"          original,",
+						"          genre,",
+						"          related,",
+						"          request,",
+						"          offer,",
+						"          aid_related,",
+						"          medical_help,",
+						"          medical_products,",
+						"          search_and_rescue,",
+						"          security,",
+						"          military,",
+						"          child_alone,",
+						"          water,",
+						"          food,",
+						"          shelter,",
+						"          clothing,",
+						"          money,",
+						"          missing_people,",
+						"          refugees,",
+						"          death,",
+						"          other_aid,",
+						"          infrastructure_related,",
+						"          transport,",
+						"          buildings,",
+						"          electricity,",
+						"          tools,",
+						"          hospitals,",
+						"          shops,",
+						"          aid_centers,",
+						"          other_infrastructure,",
+						"          weather_related,",
+						"          floods,",
+						"          storm,",
+						"          fire,",
+						"          earthquake,",
+						"          cold,",
+						"          other_weather,",
+						"          direct_report",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select3",
+						"select3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> DisasterDataSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/messages_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/categories_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/PostgreDimDate')]"
+			]
+		}
+	]
+}
