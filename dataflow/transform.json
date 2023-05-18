@@ -46,6 +46,9 @@
 				},
 				{
 					"name": "select3"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -210,7 +213,8 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select3",
-				"select3 sink(allowSchemaDrift: true,",
+				"select3 filter(isNull(alt_id)==false()) ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          id as integer,",
