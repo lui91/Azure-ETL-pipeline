@@ -6,13 +6,17 @@ variable "BLOB_STORAGE" {
   type = string
 }
 
-variable "POSTGRE_HOST" {
-  type      = string
-  sensitive = true
+variable "FACTORY_NAME" {
+  type = string
 }
 
 variable "POSTGRE_DB" {
   type = string
+}
+
+variable "POSTGRE_HOST" {
+  type      = string
+  sensitive = true
 }
 
 variable "POSTGRE_LOGIN" {

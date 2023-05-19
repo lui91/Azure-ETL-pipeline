@@ -1,6 +1,6 @@
 # Data factory configuration
 resource "azurerm_data_factory" "terra_factory" {
-  name                = "terra-tweet-factory"
+  name                = var.FACTORY_NAME
   location            = azurerm_resource_group.terra_group.location
   resource_group_name = azurerm_resource_group.terra_group.name
 
