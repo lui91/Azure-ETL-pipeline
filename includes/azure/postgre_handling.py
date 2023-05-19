@@ -41,7 +41,7 @@ def call_stored_procedure():
     conn.close()
 
 
-@task(task_id="postgre_insert_tweet")
+@task(task_id="postgre_stored_procedure")
 def call_stored_procedure():
     ''' Insert record to dimtweet'''
     conn = get_connection()
