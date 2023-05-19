@@ -8,7 +8,7 @@ from airflow.utils.task_group import TaskGroup
 from airflow.models.baseoperator import chain
 from airflow.decorators import dag
 from includes.azure.blob_handling import upload_blob_to_container
-from includes.azure.data_factory_handling import run_data_factory_pipeline, pipeline_run_check
+from legacy.azure.data_factory_handling import run_data_factory_pipeline, pipeline_run_check
 from includes.azure.postgre_handling import call_stored_procedure, create_postgre_schema
 import json
 from airflow.models import Variable
@@ -35,6 +35,7 @@ def _process_obtained_data(ti):
 
 @dag(dag_id="azure_tweets_processing",
      start_date=datetime(2023, 2, 11),
+     schedule_interval=None,
      default_view="graph",
      template_searchpath="/opt/airflow/include/")
 def main_pipeline() -> None:

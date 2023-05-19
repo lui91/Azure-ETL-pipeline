@@ -120,8 +120,8 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_rule" {
 resource "azurerm_postgresql_flexible_server_firewall_rule" "local_rule" {
   name             = "allow_local_pc"
   server_id        = azurerm_postgresql_flexible_server.terra_posgre_server.id
-  start_ip_address = "189.195.194.37"
-  end_ip_address   = "189.195.194.37"
+  start_ip_address = "177.226.113.195"
+  end_ip_address   = "177.226.113.195"
 }
 
 resource "azurerm_postgresql_flexible_server_database" "terra_posgre_db" {
@@ -131,4 +131,16 @@ resource "azurerm_postgresql_flexible_server_database" "terra_posgre_db" {
   server_id = azurerm_postgresql_flexible_server.terra_posgre_server.id
   charset   = "UTF8"
   collation = "en_US.utf8"
+}
+
+output "azurerm_resource_group-terra_group" {
+  value       = azurerm_resource_group.terra_group.id
+  description = "azurerm_resource_group.terra_group"
+  sensitive   = false
+}
+
+output "azurerm_storage_account-terra_storage" {
+  value       = azurerm_storage_account.terra_storage.id
+  description = "azurerm_storage_account.terra_storage"
+  sensitive   = false
 }
