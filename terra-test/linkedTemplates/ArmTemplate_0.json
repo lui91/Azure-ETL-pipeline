@@ -552,9 +552,9 @@
 					],
 					"scriptLines": [
 						"parameters{",
-						"     var_date_key as string (\"Var date key\"),",
-						"     var_tweet_key as string (\"Var tweet key\"),",
-						"     var_provider_key as string (\"Var provider key\")",
+						"     var_date_key as integer (0),",
+						"     var_tweet_key as integer (1),",
+						"     var_provider_key as integer (2)",
 						"}",
 						"source(output(",
 						"          id as integer,",
