@@ -3,7 +3,7 @@
 # Tasks on this project:
 
 - Dimensional design of Warehouse.
-- Terraform storage, RBAC, and infrastructure, provisioning.
+- Terraform storage, RBAC, and infrastructure provisioning.
 - Airflow orchestraition.
 - Azure Data factory transform and load pipeline.
 - Azure Database for PostgreSQL servers stored procedure calling.
@@ -13,28 +13,21 @@
 
 ![General process](/diagram/general.drawio.png "General process")
 
-## Warehouse design
-
-![Warehouse design](/diagram/shema%20diagram.drawio.png "Schema design")
-
 ## Airflow DAG
 
 ![Airflow process](/imgs/airflow_dag.png "Airflow process")
 
+## Data factory pipeline
+
+![Data factory](/imgs/pipeline.png "Data factory pipeline")
+
 ## Data factory transformation
 
-![Data factory](/imgs/azure_data_factory.png "Data factory pipeline")
+![Data factory](/imgs/azure_data_factory.png "Data factory transformation")
 
-# Docker image creation
+## Warehouse design
 
-1. Define DockerFile
-2. Download docker-compose.yml
-3. docker compose build
-4. docker compose up
-
-# Log in Azure CLI on running image
-
-1. az login --use-device-code
+![Warehouse design](/diagram/shema%20diagram.drawio.png "Schema design")
 
 # Register local packages (Before creating docker image)
 
@@ -44,23 +37,22 @@
 python setup.py install
 ```
 
-# (Optional) Upload file to blob storage
+# Docker image creation
 
-1. Grant accesss to user on blob storache IAM
-2. Sign in and connect the app to Azure on Azure CLI
+1. Define DockerFile
+2. Download docker-compose.yml
+3. docker compose build
+4. docker compose up -d
 
-```powershell
-az login
-```
+# Run bash in conainer
 
-2. Get stprage resource id
+# Log in Azure CLI on running image
 
-```powershell
-az storage account show --resource-group dataf_resource --name datastoragetweets --query id
-```
+1. az login --use-device-code
 
-3. Assign access role to user
+# Run project
 
-```powershell
-az role assignment create --assignee Luis.RamirezSolis@cinvestav.mx --role "Storage Blob Data Contributor" --scope "<your-resource-id>"
-```
+- Run dag.
+- Verify that the linked services are correctly configured.
+- Publish the automatically provisioned pipeline.
+- Run the pipeline
