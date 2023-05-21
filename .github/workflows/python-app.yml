@@ -7,7 +7,7 @@ on:
   push:
     branches: ["automatic-new-file-detection"]
   pull_request:
-    branches: ["automatic-new-file-detection"]
+    branches: ["main"]
 
 permissions:
   contents: read
