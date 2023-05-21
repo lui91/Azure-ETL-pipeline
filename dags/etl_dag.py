@@ -5,7 +5,7 @@ from airflow.operators.empty import EmptyOperator
 from airflow.operators.bash import BashOperator
 from airflow.sensors.filesystem import FileSensor
 from airflow.utils.task_group import TaskGroup
-from includes.azure.postgre_handling import call_stored_procedure, create_postgre_schema
+from includes.azure.postgre_handling import call_stored_procedure, create_postgre_schema, init_dims
 from includes.azure.blob_handling import upload_blob_to_container
 from datetime import datetime
 import os
@@ -23,9 +23,6 @@ def main_pipeline() -> None:
     files_to_sense = ["messages", "categories"]
     blobs_url = "https://" + \
         os.getenv('TF_VAR_BLOB_STORAGE') + ".blob.core.windows.net"
-    resource_group = os.getenv('DF_RESOURCE_GROUP')
-    factory_name = os.getenv('FACTORY_NAME')
-    pipeline_name = os.getenv('PIPELINE_NAME')
 
     start_node = EmptyOperator(task_id="start_task")
 
@@ -36,6 +33,8 @@ def main_pipeline() -> None:
     py_postgre_schema = create_postgre_schema()
 
     postgre_stored_procedure = call_stored_procedure()
+
+    postgre_init_dims = init_dims()
 
     file_sensors = []
     with TaskGroup('csv_sensors') as csv_sensors:
@@ -61,7 +60,7 @@ def main_pipeline() -> None:
     end_node = EmptyOperator(task_id="completed")
 
     chain(start_node, tf_create_inf, py_postgre_schema,
-          postgre_stored_procedure, csv_sensors, csv_uploads_azure, end_node)
+          postgre_stored_procedure, postgre_init_dims, csv_sensors, csv_uploads_azure, end_node)
 
 
 dag = main_pipeline()
