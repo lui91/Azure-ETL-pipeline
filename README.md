@@ -13,10 +13,6 @@
 
 ![General process](/diagram/general.drawio.png "General process")
 
-## Airflow DAG
-
-![Airflow process](/imgs/airflow_dag.png "Airflow process")
-
 ## Data factory pipeline
 
 ![Data factory](/imgs/pipeline.png "Data factory pipeline")
@@ -25,17 +21,13 @@
 
 ![Data factory](/imgs/azure_data_factory.png "Data factory transformation")
 
+## Airflow DAG
+
+![Airflow process](/imgs/airflow_dag.png "Airflow process")
+
 ## Warehouse design
 
 ![Warehouse design](/diagram/shema%20diagram.drawio.png "Schema design")
-
-# Register local packages (Before creating docker image)
-
-1. Define setup.py
-
-```python
-python setup.py install
-```
 
 # Docker image creation
 
@@ -44,11 +36,21 @@ python setup.py install
 3. docker compose build
 4. docker compose up -d
 
-# Run bash in conainer
-
 # Log in Azure CLI on running image
 
 1. az login --use-device-code
+
+# Create env file
+
+Azure data needed for the connections
+
+- TF_VAR_BLOB_STORAGE= storage account
+- TF_VAR_FACTORY_NAME= desired data factory name
+- TF_VAR_RESOURCE_GROUP= resource group name
+- TF_VAR_POSTGRE_HOST= X.postgres.database.azure.com, postrge server hostname
+- TF_VAR_POSTGRE_DB= database name
+- TF_VAR_POSTGRE_LOGIN= postgre login
+- TF_VAR_POSTGRE_PASSWORD= postgre password
 
 # Run project
 
