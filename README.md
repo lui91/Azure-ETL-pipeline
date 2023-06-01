@@ -4,10 +4,10 @@
 
 - Dimensional design of Warehouse.
 - Terraform storage, RBAC, and infrastructure provisioning.
-- Airflow orchestraition.
+- Airflow orchestration.
 - Azure Data factory transform and load pipeline.
 - Azure Database for PostgreSQL servers stored procedure calling.
-- CI/CD using github actions.
+- CI/CD using GitHub actions.
 
 ## Structure
 
@@ -17,7 +17,7 @@
 
 ![Data factory](/imgs/pipeline.png "Data factory pipeline")
 
-## Data factory transformation
+## Data flow transformation
 
 ![Data factory](/imgs/azure_data_factory.png "Data factory transformation")
 
@@ -29,32 +29,36 @@
 
 ![Warehouse design](/diagram/shema%20diagram.drawio.png "Schema design")
 
-# Docker image creation
+# Run project
 
-1. Define DockerFile
-2. Download docker-compose.yml
-3. docker compose build
-4. docker compose up -d
+# 1. Create .env file
 
-# Log in Azure CLI on running image
-
-1. az login --use-device-code
-
-# Create env file
-
-Azure data needed for the connections
+Azure data needed for the connections, create the .en file in root folder
 
 - TF_VAR_BLOB_STORAGE= storage account
 - TF_VAR_FACTORY_NAME= desired data factory name
 - TF_VAR_RESOURCE_GROUP= resource group name
-- TF_VAR_POSTGRE_HOST= X.postgres.database.azure.com, postrge server hostname
+- TF_VAR_POSTGRE_HOST= X.postgres.database.azure.com, postrges server hostname
 - TF_VAR_POSTGRE_DB= database name
-- TF_VAR_POSTGRE_LOGIN= postgre login
-- TF_VAR_POSTGRE_PASSWORD= postgre password
+- TF_VAR_POSTGRE_LOGIN= postgres login
+- TF_VAR_POSTGRE_PASSWORD= postgres password
 
-# Run project
+# 2. Docker compile
 
-- Run dag.
+1. docker compose build
+2. docker compose up -d
+3. Attach to one of the created docker containers.
+
+# 3. Log in to Azure CLI on running image
+
+1. az login --use-device-code
+
+# 4. Use Ariflow to provision the Azure infrastructure.
+
+- Run dag using airflow CLI or web UI on localhost:8080.
+
+# 5. Go to the created data factory on the Azure portal.
+
 - Verify that the linked services are correctly configured.
 - Publish the automatically provisioned pipeline.
-- Run the pipeline
+- Run the pipeline.
