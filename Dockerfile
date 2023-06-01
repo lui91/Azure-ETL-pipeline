@@ -8,6 +8,7 @@ RUN pip install -e .
 USER 0
 RUN apt-get update && apt-get install wget
 COPY azure_cli_install.sh .
+RUN chmod +x azure_cli_install.sh
 RUN ./azure_cli_install.sh
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
     gpg --dearmor | \
